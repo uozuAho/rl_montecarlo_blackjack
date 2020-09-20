@@ -1,5 +1,6 @@
 import gym
 
+
 def main():
     env = gym.make('Blackjack-v0')
     env.reset()
@@ -13,8 +14,15 @@ def main():
     print("win" if reward > 0 else "lose")
     env.close()
 
+
+# observation (obs) = [
+#   sum of player's hand,
+#   dealer's showing card,
+#   player has a usable ace
+# ]
 def render_obs(obs):
     return f"sum: {obs[0]}, dealer: {obs[1]}, usable ace?: {obs[2]}"
+
 
 if __name__ == "__main__":
     main()
