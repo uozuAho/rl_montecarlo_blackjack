@@ -1,6 +1,8 @@
 # blackjack RL playground
 
-Uses [ai gym](https://gym.openai.com/docs/) and python
+Testing monte carlo RL methods on blackjack.
+
+Uses [ai gym](https://gym.openai.com/docs/) and python.
 
 
 # setup
