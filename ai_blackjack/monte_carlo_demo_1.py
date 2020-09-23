@@ -1,13 +1,28 @@
-from typing import List, Tuple
+from typing import List, Tuple, Iterable, Dict
+
+import gym
+
 
 def main():
+    env = gym.make('Blackjack-v0')
     policy = StayOn20Agent()
+    values = estimate_V(env, policy)
+    for state in values:
+        print(state, values[state])
+
 
 class StayOn20Agent:
     def action(self, obs):
         return 1 if obs[0] < 20 else 0
 
+
 class State:
+    """ The state of a blackjack game
+        Attributes:
+            player_sum:     sum of the player's cards
+            dealers_card:   the dealer's card that the player can see
+            has_usable_ace: True if the player has a 'usable' ace
+    """
     def __init__(self, player_sum: int, dealers_card: int, has_usable_ace: bool):
         self.player_sum = player_sum
         self.dealers_card = dealers_card
@@ -28,55 +43,61 @@ class State:
         return hash(tuple(sorted(self.__dict__.items())))
 
 
+class EpisodeStep:
+    """ A step of an episode (game) of blackjack
+
+        Attributes:
+            reward: the reward for the previous action, resulting in this state
+            state:  the current state of the game
+            action: the action taken from this state
+    """
+    def __init__(self, reward: int, state: State, action: int):
+        self.reward = reward
+        self.state = state
+        self.action = action
+
+
 class Episode:
-    # steps: List(reward, State, action)
-    def __init__(self, steps: List[Tuple[int, State, int]]):
-        self._steps = steps
-        self._states: List[State] = [step[1] for step in steps]
+    def __init__(self, steps: List[EpisodeStep]):
+        self.steps = steps
+        self._states: List[State] = [step.state for step in steps]
 
     def is_first_visit(self, state: State, t: int):
         return state not in self._states[0:t]
 
     def length(self):
-        return len(self._steps)
+        return len(self.steps)
 
 
-def estimate_V(policy, gamma):
-    # V = {s: arbitrary for s in all_states}
-    # returns = {s: [] for s in all_states}
+def estimate_V(env, policy) -> Dict[State, float]:
+    gamma = 1
+    returns = {}
 
-    # while True:
-    #     G_return = 0
-    #     episode = list(generate_episode)
-    #     states = [ep[1] for ep in episode]
-    #     rewards = [ep[0] for ep in episode]
-    #     for t in reversed(range(len(episode) - 1)):
-    #         state = states[t]
-    #         G_return = gamma * G_return + rewards[t + 1]
-    #         if state not in states[0:t]:  # <-- if first visit
-    #             returns[state].append(G_return)
-    #             V[state] = avg(returns[state])
-
-    while True:
+    for _ in range(10):
+    # while True:  # todo: stop when converged
         G_return = 0
-        episode = Episode(env, policy)
-        for t in reversed(range(len(episode) - 1)):
-            state = episode.state(t)
-            G_return = gamma * G_return + episode.reward(t + 1)
+        episode = Episode(list(generate_episode(env, policy)))
+        for t in reversed(range(episode.length() - 1)):
+            state = episode.steps[t].state
+            G_return = gamma * G_return + episode.steps[t + 1].reward
             if episode.is_first_visit(state, t):
-                returns[state].append(G_return)
-                V[state] = avg(returns[state])
+                if state in returns:
+                    returns[state].append(G_return)
+                else:
+                    returns[state] = [G_return]
 
-# episode: reward(for action in t-1), obs, action
-def generate_episode(env, policy):
+    return {s: sum(returns[s]) / len(returns[s]) for s in returns.keys()}
+
+
+def generate_episode(env, policy) -> Iterable[EpisodeStep]:
     obs = env.reset()
     done = False
     reward = None
     while not done:
         action = policy.action(obs)
-        yield (reward, obs, action)
+        yield EpisodeStep(reward, obs, action)
         obs, reward, done, _ = env.step(action)
-    yield (reward, None, None)
+    yield EpisodeStep(reward, None, None)
 
 
 if __name__ == "__main__":

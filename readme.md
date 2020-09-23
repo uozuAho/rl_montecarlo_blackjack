@@ -2,8 +2,21 @@
 
 Uses [ai gym](https://gym.openai.com/docs/) and python
 
+
 # setup
 
 python 3+ (tested with 3.8)
-`python -m venv .`
-`pip install -r requirements.txt`
+
+```sh
+python -m venv .  # if you've just cloned the repo
+. Scripts/activate
+pip install -r requirements.txt
+./run_tests.sh
+```
+
+
+# todo
+
+- finish evaluating 'stay on 20 agent'
+    - plot?
+- make a random agent for the console demo
