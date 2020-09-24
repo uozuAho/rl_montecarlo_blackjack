@@ -19,6 +19,7 @@ pip install -r requirements.txt
 
 # todo
 
+- nothing showing in value plot. test can find state in dict
 - finish evaluating 'stay on 20 agent'
     - plot?
 - make a random agent for the console demo

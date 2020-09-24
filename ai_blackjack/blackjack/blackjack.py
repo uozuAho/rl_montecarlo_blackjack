@@ -21,6 +21,9 @@ class State:
     def copy(cls, s):
         return cls(s.player_sum, s.dealers_card, s.has_usable_ace)
 
+    def __str__(self):
+        return f"p: {self.player_sum}, d: {self.dealers_card}, a: {self.has_usable_ace}"
+
     def __eq__(self, other):
         return isinstance(other, State) and self.__dict__.items() == other.__dict__.items()
 
