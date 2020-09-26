@@ -14,6 +14,7 @@ python -m venv .  # if you've just cloned the repo
 . Scripts/activate
 pip install -r requirements.txt
 ./run_tests.sh
+python demo.py
 ```
 
 

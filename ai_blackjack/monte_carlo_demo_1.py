@@ -8,18 +8,18 @@ import numpy as np
 from ai_blackjack.blackjack.blackjack import Episode, EpisodeStep, State
 
 
-def main():
-    env = gym.make('Blackjack-v0')
+def run_demo():
     policy = StayOn20Agent()
-    values = estimate_V(env, policy)
-    print_values(values)
-    # plot_values(values)
+    values = estimate_V(policy)
+    # print_values(values)
+    plot_values(values)
 
 
 def print_values(values: Dict[State, float]):
     # for state in values:
     #     print(state, values[state])
-    x, y, z = extract_xyz_from_values(values)
+    _, _, z = extract_xyz_from_values(values)
+    np.set_printoptions(precision=2)
     print(z)
 
 
@@ -52,14 +52,16 @@ class StayOn20Agent:
         return 1 if obs[0] < 20 else 0
 
 
-def estimate_V(env, policy) -> Dict[State, float]:
+def estimate_V(policy, episode_limit=10000) -> Dict[State, float]:
+    env = gym.make('Blackjack-v0')
+
     gamma = 1
     returns = {}
 
-    for _ in range(100):
+    for _ in range(episode_limit):
     # while True:  # todo: stop when converged
         G_return = 0
-        episode = Episode(list(generate_episode(env, policy)))
+        episode = Episode(list(generate_episode(policy, env)))
         for t in reversed(range(episode.length() - 1)):
             state = episode.steps[t].state
             G_return = gamma * G_return + episode.steps[t + 1].reward
@@ -72,16 +74,17 @@ def estimate_V(env, policy) -> Dict[State, float]:
     return {s: sum(returns[s]) / len(returns[s]) for s in returns.keys()}
 
 
-def generate_episode(env, policy) -> Iterable[EpisodeStep]:
+def generate_episode(policy, env=None) -> Iterable[EpisodeStep]:
+    if not env: env = gym.make('Blackjack-v0')
     obs = env.reset()
     done = False
     reward = None
     while not done:
         action = policy.action(obs)
-        yield EpisodeStep(reward, obs, action)
+        yield EpisodeStep(reward, State.from_obs(obs), action)
         obs, reward, done, _ = env.step(action)
-    yield EpisodeStep(reward, None, None)
+    yield EpisodeStep(reward, State.from_obs(obs), None)
 
 
 if __name__ == "__main__":
-    main()
+    run_demo()

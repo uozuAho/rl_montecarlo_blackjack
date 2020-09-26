@@ -39,7 +39,7 @@ class EpisodeStep:
             state:  the current state of the game
             action: the action taken from this state
     """
-    def __init__(self, reward: int, state: State, action: int):
+    def __init__(self, reward: float, state: State, action: int):
         self.reward = reward
         self.state = state
         self.action = action
