@@ -5,15 +5,25 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
 
-from ai_blackjack.blackjack.blackjack import Episode, EpisodeStep, State
+import ai_blackjack.blackjack.blackjack as bj
+from ai_blackjack import visualise
 
 
 def run_demo():
-    policy = find_optimal_policy()
+    policy, values = find_optimal_policy()
+    visualise.print_policy(policy)
+    visualise.plot_values(values,
+        f'State values for optimal agent, no usable ace',
+        False
+    )
+    # plot_values(values,
+    #     f'State values for optimal agent, usable ace',
+    #     True
+    # )
 
 
 class MutableAgent:
-    def action(self, obs):
+    def action(self, state):
         return 0
 
     def set_action(self, state, action):
@@ -25,7 +35,7 @@ def find_best_action(action_values, state):
 
 
 def generate_episode(first_state, first_action):
-    yield EpisodeStep(0, State(0, 0, False), 0)
+    yield bj.EpisodeStep(0, bj.State(0, 0, False), 0)
 
 
 def avg(things):
@@ -37,14 +47,14 @@ def find_optimal_policy():
     gamma = 1.0
     policy = MutableAgent()
 
-    action_values: Dict[Tuple[State, int], float] = {}
-    returns:       Dict[Tuple[State, int], float] = {}
+    action_values: Dict[Tuple[bj.State, int], float] = {}
+    returns:       Dict[Tuple[bj.State, int], float] = {}
 
     while False:
-        state = State(0, 0, False) # todo: random state
+        state = bj.State(0, 0, False) # todo: random state
         action = 0 # todo: random action
         G_return = 0
-        episode = Episode(list(generate_episode(state, action))) # todo: generate episode
+        episode = bj.Episode(list(generate_episode(state, action))) # todo: generate episode
         for t in reversed(range(episode.length() - 1)):
             state = episode.steps[t].state
             action = episode.steps[t].action
@@ -60,7 +70,7 @@ def find_optimal_policy():
                 best_action = find_best_action(action_values, state)
                 policy.set_action(state, best_action)
 
-    return policy
+    return policy, {bj.State(0, 0, False): 0.0}
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ class State:
 
     @classmethod
     def from_obs(cls, obs):
+        """ create a state from an ai_gym observation """
         return cls(obs[0], obs[1], obs[2])
 
     @classmethod

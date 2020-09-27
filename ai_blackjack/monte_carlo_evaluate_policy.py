@@ -6,55 +6,22 @@ from matplotlib import cm
 import numpy as np
 
 from ai_blackjack.blackjack.blackjack import Episode, EpisodeStep, State
+from ai_blackjack import visualise
 
 
 def run_demo():
     policy = StayOn20Agent()
     num_episodes = 50000
     values = estimate_V(policy, num_episodes)
-    plot_values(values,
+    visualise.plot_values(values,
         f'State values for stay on 20/21 agent, no usable ace, {num_episodes} episodes',
         False
     )
-    plot_values(values,
+    visualise.plot_values(values,
         f'State values for stay on 20/21 agent, usable ace, {num_episodes} episodes',
         True
     )
-    # print_values(values)
-
-
-def print_values(values: Dict[State, float]):
-    _, _, z = extract_xyz_from_values(values)
-    np.set_printoptions(precision=2)
-    print(z)
-
-
-def plot_values(values: Dict[State, float], title=None, has_usable_ace=False):
-    fig = plt.figure()
-    fig.suptitle(title)
-    ax = fig.gca(projection='3d')
-    x, y, z = extract_xyz_from_values(values, has_usable_ace)
-    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-    ax.set_xlabel('dealer showing')
-    ax.set_ylabel('player sum')
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.show()
-
-
-def extract_xyz_from_values(values: Dict[State, float], has_usable_ace=False):
-    X = range(1, 11, 1)     # dealer showing
-    Y = range(12, 22, 1)    # player sum
-    z = []
-    for y in Y:
-        zrow = []
-        z.append(zrow)
-        for x in X:
-            state = State(y, x, has_usable_ace)
-            value = values[state] if state in values else 0.0
-            zrow.append(value)
-    X, Y = np.meshgrid(X, Y)
-    z = np.array(z)
-    return X, Y, z
+    visualise.print_values(values)
 
 
 class StayOn20Agent:
