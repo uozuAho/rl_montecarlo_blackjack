@@ -25,9 +25,12 @@ def print_values(values: Dict[State, float]):
 
 def plot_values(values: Dict[State, float]):
     fig = plt.figure()
+    fig.suptitle('State values for stay on 20/21 agent')
     ax = fig.gca(projection='3d')
     x, y, z = extract_xyz_from_values(values)
     surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+    ax.set_xlabel('dealer showing')
+    ax.set_ylabel('player sum')
     fig.colorbar(surf, shrink=0.5, aspect=5)
     plt.show()
 
@@ -36,13 +39,14 @@ def extract_xyz_from_values(values: Dict[State, float]):
     X = range(1, 11, 1)     # dealer showing
     Y = range(12, 22, 1)    # player sum
     z = []
-    for x in X:
+    for y in Y:
         zrow = []
         z.append(zrow)
-        for y in Y:
+        for x in X:
             state = State(y, x, False)
             value = values[state] if state in values else 0.0
             zrow.append(value)
+    X, Y = np.meshgrid(X, Y)
     z = np.array(z)
     return X, Y, z
 
