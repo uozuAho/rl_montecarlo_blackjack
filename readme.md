@@ -16,3 +16,8 @@ pip install -r requirements.txt
 ./run_tests.sh
 python demo.py
 ```
+
+
+# todo
+
+- mc policy optimiser

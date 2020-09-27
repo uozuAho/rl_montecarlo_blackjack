@@ -80,6 +80,7 @@ def estimate_V(policy, episode_limit=10000) -> Dict[State, float]:
                 else:
                     returns[state] = [G_return]
 
+    # average all returns for each state
     return {s: sum(returns[s]) / len(returns[s]) for s in returns.keys()}
 
 

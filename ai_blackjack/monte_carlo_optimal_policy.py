@@ -1,4 +1,4 @@
-from typing import Iterable, Dict
+from typing import Iterable, Dict, Tuple
 
 import gym
 import matplotlib.pyplot as plt
@@ -9,90 +9,58 @@ from ai_blackjack.blackjack.blackjack import Episode, EpisodeStep, State
 
 
 def run_demo():
-    policy = StayOn20Agent()
-    num_episodes = 50000
-    values = estimate_V(policy, num_episodes)
-    plot_values(values,
-        f'State values for stay on 20/21 agent, no usable ace, {num_episodes} episodes',
-        False
-    )
-    plot_values(values,
-        f'State values for stay on 20/21 agent, usable ace, {num_episodes} episodes',
-        True
-    )
-    # print_values(values)
+    policy = find_optimal_policy()
 
 
-def print_values(values: Dict[State, float]):
-    _, _, z = extract_xyz_from_values(values)
-    np.set_printoptions(precision=2)
-    print(z)
-
-
-def plot_values(values: Dict[State, float], title=None, has_usable_ace=False):
-    fig = plt.figure()
-    fig.suptitle(title)
-    ax = fig.gca(projection='3d')
-    x, y, z = extract_xyz_from_values(values, has_usable_ace)
-    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-    ax.set_xlabel('dealer showing')
-    ax.set_ylabel('player sum')
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.show()
-
-
-def extract_xyz_from_values(values: Dict[State, float], has_usable_ace=False):
-    X = range(1, 11, 1)     # dealer showing
-    Y = range(12, 22, 1)    # player sum
-    z = []
-    for y in Y:
-        zrow = []
-        z.append(zrow)
-        for x in X:
-            state = State(y, x, has_usable_ace)
-            value = values[state] if state in values else 0.0
-            zrow.append(value)
-    X, Y = np.meshgrid(X, Y)
-    z = np.array(z)
-    return X, Y, z
-
-
-class StayOn20Agent:
+class MutableAgent:
     def action(self, obs):
-        return 1 if obs[0] < 20 else 0
+        return 0
+
+    def set_action(self, state, action):
+        pass
 
 
-def estimate_V(policy, episode_limit=10000) -> Dict[State, float]:
-    env = gym.make('Blackjack-v0')
+def find_best_action(action_values, state):
+    return 0
 
-    gamma = 1
-    returns = {}
 
-    for _ in range(episode_limit):
+def generate_episode(first_state, first_action):
+    yield EpisodeStep(0, State(0, 0, False), 0)
+
+
+def avg(things):
+    list_of_things = list(things)
+    return sum(list_of_things) / len(list_of_things)
+
+
+def find_optimal_policy():
+    gamma = 1.0
+    policy = MutableAgent()
+
+    action_values: Dict[Tuple[State, int], float] = {}
+    returns:       Dict[Tuple[State, int], float] = {}
+
+    while False:
+        state = State(0, 0, False) # todo: random state
+        action = 0 # todo: random action
         G_return = 0
-        episode = Episode(list(generate_episode(policy, env)))
+        episode = Episode(list(generate_episode(state, action))) # todo: generate episode
         for t in reversed(range(episode.length() - 1)):
             state = episode.steps[t].state
+            action = episode.steps[t].action
             G_return = gamma * G_return + episode.steps[t + 1].reward
-            if episode.is_first_visit(state, t):
-                if state in returns:
-                    returns[state].append(G_return)
+            if episode.is_first_visit(state, t): # todo: is first visit for state and action
+                state_action = (state, action)
+                if state_action in returns:
+                    returns[state_action].append(G_return)
                 else:
-                    returns[state] = [G_return]
+                    returns[state_action] = [G_return]
 
-    return {s: sum(returns[s]) / len(returns[s]) for s in returns.keys()}
+                action_values[state_action] = avg(returns[state_action])
+                best_action = find_best_action(action_values, state)
+                policy.set_action(state, best_action)
 
-
-def generate_episode(policy, env=None) -> Iterable[EpisodeStep]:
-    if not env: env = gym.make('Blackjack-v0')
-    obs = env.reset()
-    done = False
-    reward = None
-    while not done:
-        action = policy.action(obs)
-        yield EpisodeStep(reward, State.from_obs(obs), action)
-        obs, reward, done, _ = env.step(action)
-    yield EpisodeStep(reward, State.from_obs(obs), None)
+    return policy
 
 
 if __name__ == "__main__":
