@@ -14,11 +14,13 @@ python -m venv .  # if you've just cloned the repo
 . Scripts/activate
 pip install -r requirements.txt
 ./run_tests.sh
+python demo.py
 ```
 
 
 # todo
 
+- nothing showing in value plot. test can find state in dict
 - finish evaluating 'stay on 20 agent'
     - plot?
 - make a random agent for the console demo

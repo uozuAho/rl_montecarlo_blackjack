@@ -1,14 +1,60 @@
-from typing import List, Tuple, Iterable, Dict
+from typing import Iterable, Dict
 
 import gym
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import numpy as np
+
+from ai_blackjack.blackjack.blackjack import Episode, EpisodeStep, State
 
 
-def main():
-    env = gym.make('Blackjack-v0')
+def run_demo():
     policy = StayOn20Agent()
-    values = estimate_V(env, policy)
-    for state in values:
-        print(state, values[state])
+    num_episodes = 50000
+    values = estimate_V(policy, num_episodes)
+    plot_values(values,
+        f'State values for stay on 20/21 agent, no usable ace, {num_episodes} episodes',
+        False
+    )
+    plot_values(values,
+        f'State values for stay on 20/21 agent, usable ace, {num_episodes} episodes',
+        True
+    )
+    # print_values(values)
+
+
+def print_values(values: Dict[State, float]):
+    _, _, z = extract_xyz_from_values(values)
+    np.set_printoptions(precision=2)
+    print(z)
+
+
+def plot_values(values: Dict[State, float], title=None, has_usable_ace=False):
+    fig = plt.figure()
+    fig.suptitle(title)
+    ax = fig.gca(projection='3d')
+    x, y, z = extract_xyz_from_values(values, has_usable_ace)
+    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+    ax.set_xlabel('dealer showing')
+    ax.set_ylabel('player sum')
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    plt.show()
+
+
+def extract_xyz_from_values(values: Dict[State, float], has_usable_ace=False):
+    X = range(1, 11, 1)     # dealer showing
+    Y = range(12, 22, 1)    # player sum
+    z = []
+    for y in Y:
+        zrow = []
+        z.append(zrow)
+        for x in X:
+            state = State(y, x, has_usable_ace)
+            value = values[state] if state in values else 0.0
+            zrow.append(value)
+    X, Y = np.meshgrid(X, Y)
+    z = np.array(z)
+    return X, Y, z
 
 
 class StayOn20Agent:
@@ -16,67 +62,15 @@ class StayOn20Agent:
         return 1 if obs[0] < 20 else 0
 
 
-class State:
-    """ The state of a blackjack game
-        Attributes:
-            player_sum:     sum of the player's cards
-            dealers_card:   the dealer's card that the player can see
-            has_usable_ace: True if the player has a 'usable' ace
-    """
-    def __init__(self, player_sum: int, dealers_card: int, has_usable_ace: bool):
-        self.player_sum = player_sum
-        self.dealers_card = dealers_card
-        self.has_usable_ace = has_usable_ace
+def estimate_V(policy, episode_limit=10000) -> Dict[State, float]:
+    env = gym.make('Blackjack-v0')
 
-    @classmethod
-    def from_obs(cls, obs):
-        return cls(obs[0], obs[1], obs[2])
-
-    @classmethod
-    def copy(cls, s):
-        return cls(s.player_sum, s.dealers_card, s.has_usable_ace)
-
-    def __eq__(self, other):
-        return isinstance(other, State) and self.__dict__.items() == other.__dict__.items()
-
-    def __hash__(self):
-        return hash(tuple(sorted(self.__dict__.items())))
-
-
-class EpisodeStep:
-    """ A step of an episode (game) of blackjack
-
-        Attributes:
-            reward: the reward for the previous action, resulting in this state
-            state:  the current state of the game
-            action: the action taken from this state
-    """
-    def __init__(self, reward: int, state: State, action: int):
-        self.reward = reward
-        self.state = state
-        self.action = action
-
-
-class Episode:
-    def __init__(self, steps: List[EpisodeStep]):
-        self.steps = steps
-        self._states: List[State] = [step.state for step in steps]
-
-    def is_first_visit(self, state: State, t: int):
-        return state not in self._states[0:t]
-
-    def length(self):
-        return len(self.steps)
-
-
-def estimate_V(env, policy) -> Dict[State, float]:
     gamma = 1
     returns = {}
 
-    for _ in range(10):
-    # while True:  # todo: stop when converged
+    for _ in range(episode_limit):
         G_return = 0
-        episode = Episode(list(generate_episode(env, policy)))
+        episode = Episode(list(generate_episode(policy, env)))
         for t in reversed(range(episode.length() - 1)):
             state = episode.steps[t].state
             G_return = gamma * G_return + episode.steps[t + 1].reward
@@ -89,16 +83,17 @@ def estimate_V(env, policy) -> Dict[State, float]:
     return {s: sum(returns[s]) / len(returns[s]) for s in returns.keys()}
 
 
-def generate_episode(env, policy) -> Iterable[EpisodeStep]:
+def generate_episode(policy, env=None) -> Iterable[EpisodeStep]:
+    if not env: env = gym.make('Blackjack-v0')
     obs = env.reset()
     done = False
     reward = None
     while not done:
         action = policy.action(obs)
-        yield EpisodeStep(reward, obs, action)
+        yield EpisodeStep(reward, State.from_obs(obs), action)
         obs, reward, done, _ = env.step(action)
-    yield EpisodeStep(reward, None, None)
+    yield EpisodeStep(reward, State.from_obs(obs), None)
 
 
 if __name__ == "__main__":
-    main()
+    run_demo()
