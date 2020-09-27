@@ -10,24 +10,30 @@ from ai_blackjack.blackjack.blackjack import Episode, EpisodeStep, State
 
 def run_demo():
     policy = StayOn20Agent()
-    values = estimate_V(policy)
+    num_episodes = 50000
+    values = estimate_V(policy, num_episodes)
+    plot_values(values,
+        f'State values for stay on 20/21 agent, no usable ace, {num_episodes} episodes',
+        False
+    )
+    plot_values(values,
+        f'State values for stay on 20/21 agent, usable ace, {num_episodes} episodes',
+        True
+    )
     # print_values(values)
-    plot_values(values)
 
 
 def print_values(values: Dict[State, float]):
-    # for state in values:
-    #     print(state, values[state])
     _, _, z = extract_xyz_from_values(values)
     np.set_printoptions(precision=2)
     print(z)
 
 
-def plot_values(values: Dict[State, float]):
+def plot_values(values: Dict[State, float], title=None, has_usable_ace=False):
     fig = plt.figure()
-    fig.suptitle('State values for stay on 20/21 agent')
+    fig.suptitle(title)
     ax = fig.gca(projection='3d')
-    x, y, z = extract_xyz_from_values(values)
+    x, y, z = extract_xyz_from_values(values, has_usable_ace)
     surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
     ax.set_xlabel('dealer showing')
     ax.set_ylabel('player sum')
@@ -35,7 +41,7 @@ def plot_values(values: Dict[State, float]):
     plt.show()
 
 
-def extract_xyz_from_values(values: Dict[State, float]):
+def extract_xyz_from_values(values: Dict[State, float], has_usable_ace=False):
     X = range(1, 11, 1)     # dealer showing
     Y = range(12, 22, 1)    # player sum
     z = []
@@ -43,7 +49,7 @@ def extract_xyz_from_values(values: Dict[State, float]):
         zrow = []
         z.append(zrow)
         for x in X:
-            state = State(y, x, False)
+            state = State(y, x, has_usable_ace)
             value = values[state] if state in values else 0.0
             zrow.append(value)
     X, Y = np.meshgrid(X, Y)
@@ -63,7 +69,6 @@ def estimate_V(policy, episode_limit=10000) -> Dict[State, float]:
     returns = {}
 
     for _ in range(episode_limit):
-    # while True:  # todo: stop when converged
         G_return = 0
         episode = Episode(list(generate_episode(policy, env)))
         for t in reversed(range(episode.length() - 1)):
