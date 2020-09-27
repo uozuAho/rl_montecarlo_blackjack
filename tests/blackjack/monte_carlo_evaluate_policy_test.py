@@ -1,6 +1,6 @@
 import unittest
 
-import ai_blackjack.monte_carlo_demo_1 as mc1
+import ai_blackjack.monte_carlo_evaluate_policy as mc1
 
 
 class AlwaysStayAgent:
