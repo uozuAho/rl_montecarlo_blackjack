@@ -50,9 +50,12 @@ class Episode:
     def __init__(self, steps: List[EpisodeStep]):
         self.steps = steps
         self._states: List[State] = [step.state for step in steps]
+        self._state_actions: List[Tuple[State, int]] = [(step.state, step.action) for step in steps]
 
-    def first_visit(self, state: State):
-        return self._states.index(state)
+    def first_visit(self, state: State, action: int=None) -> int:
+        if action is None:
+            return self._states.index(state)
+        return self._state_actions.index((state, action))
 
-    def length(self):
+    def length(self) -> int:
         return len(self.steps)
