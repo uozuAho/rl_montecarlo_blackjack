@@ -14,14 +14,7 @@ class GivenEpisodeOfDuplicateStates(unittest.TestCase):
         ])
 
     def test_first_visit_is_the_first_state(self):
-        is_first_visit = self.episode.is_first_visit(self.state, 0)
-        self.assertTrue(is_first_visit)
-
-    def test_no_other_state_is_first_visit(self):
-        for t in range(1, self.episode.length()):
-            with self.subTest(t):
-                is_first_visit = self.episode.is_first_visit(self.state, t)
-                self.assertFalse(is_first_visit)
+        self.assertEqual(self.episode.first_visit(self.state), 0)
 
 
 class GivenEpisodeOfDifferentStates(unittest.TestCase):
@@ -37,5 +30,4 @@ class GivenEpisodeOfDifferentStates(unittest.TestCase):
         for t in range(1, self.episode.length()):
             with self.subTest(t):
                 state = self.steps[t].state
-                is_first_visit = self.episode.is_first_visit(state, t)
-                self.assertTrue(is_first_visit)
+                self.assertEqual(self.episode.first_visit(state), t)

@@ -51,8 +51,8 @@ class Episode:
         self.steps = steps
         self._states: List[State] = [step.state for step in steps]
 
-    def is_first_visit(self, state: State, t: int):
-        return state not in self._states[0:t]
+    def first_visit(self, state: State):
+        return self._states.index(state)
 
     def length(self):
         return len(self.steps)

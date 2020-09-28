@@ -41,7 +41,7 @@ def estimate_V(policy, episode_limit=10000) -> Dict[State, float]:
         for t in reversed(range(episode.length() - 1)):
             state = episode.steps[t].state
             G_return = gamma * G_return + episode.steps[t + 1].reward
-            if episode.is_first_visit(state, t):
+            if episode.first_visit(state) == t:
                 if state in returns:
                     returns[state].append(G_return)
                 else:

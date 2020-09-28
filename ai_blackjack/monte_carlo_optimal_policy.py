@@ -29,7 +29,7 @@ def find_optimal_policy():
     action_values: ActionValues()
     returns: Returns()
 
-    while False:
+    for _ in range(10):
         state = bj.State(0, 0, False) # todo: random state
         action = 0 # todo: random action
         G_return = 0
@@ -39,7 +39,7 @@ def find_optimal_policy():
             state = episode.steps[t].state
             action = episode.steps[t].action
             G_return = gamma * G_return + episode.steps[t + 1].reward
-            if episode.is_first_visit(state, t): # todo: is first visit for state and action
+            if episode.first_visit(state, action) == t: # todo: is first visit for state and action
                 returns.add(state, action, G_return)
                 action_values.add(state, action, returns.average_for(state, action))
                 best_action = action_values.highest_value_action(state)
