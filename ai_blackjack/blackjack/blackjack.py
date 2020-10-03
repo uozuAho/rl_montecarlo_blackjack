@@ -62,9 +62,10 @@ class Episode:
     def length(self) -> int:
         return len(self.steps)
 
+static_env = gym.make('Blackjack-v0')
 
 def generate_random_episode(policy, env=None) -> Iterable[EpisodeStep]:
-    if not env: env = gym.make('Blackjack-v0')
+    if not env: env = static_env
     obs = env.reset()
     done = False
     reward = None
