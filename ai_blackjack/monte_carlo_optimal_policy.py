@@ -12,6 +12,7 @@ from ai_blackjack import visualise
 def run_demo():
     policy, values = find_optimal_policy()
     visualise.print_policy(policy)
+    visualise.print_values(values)
     visualise.plot_values(values,
         f'State values for optimal agent, no usable ace',
         False
@@ -27,6 +28,8 @@ class MutableAgent:
         self._actions: Dict[bj.State, int] = {}
 
     def action(self, state):
+        if state not in self._actions:
+            return 0
         return self._actions[state]
 
     def set_action(self, state, action):
@@ -83,24 +86,18 @@ def find_optimal_policy():
 
 
 def improve_policy(policy: MutableAgent, action_values: ActionValues, returns: Returns) -> None:
-    state = bj.State(0, 0, False) # todo: random state
-    action = 0 # todo: random action
     G_return = 0
-    # todo: generate episode with given starting state and action (exploring start)
-    episode = bj.Episode(list(generate_episode(state, action)))
+    # note: we get exploring starts for free with the random episode generator
+    episode = bj.Episode(list(bj.generate_random_episode(policy)))
     for t in reversed(range(episode.length() - 1)):
         state = episode.steps[t].state
         action = episode.steps[t].action
         G_return = G_return + episode.steps[t + 1].reward
         if episode.first_visit(state, action) == t:
             returns.add(state, action, G_return)
-            action_values.add(state, action, returns.average_for(state, action))
+            action_values.set(state, action, returns.average_for(state, action))
             best_action = action_values.highest_value_action(state)
             policy.set_action(state, best_action)
-
-
-def generate_episode(first_state, first_action):
-    yield bj.EpisodeStep(0, bj.State(0, 0, False), 0)
 
 
 def avg(things):

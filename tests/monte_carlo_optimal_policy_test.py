@@ -32,8 +32,8 @@ class EmptyMutableAgent(unittest.TestCase):
     def setUp(self):
         self.agent = mc_op.MutableAgent()
 
-    def test_any_action_raises_key_error(self):
-        self.assertRaises(KeyError, lambda: self.agent.action(any_state))
+    def test_any_action_returns_0(self):
+        self.assertEqual(self.agent.action(any_state), 0)
 
     def test_returns_action_that_was_set(self):
         state = bj.State(0, 0, False)
@@ -94,8 +94,10 @@ class ImprovePolicy(unittest.TestCase):
 
         total_value_before = total_value(policy, action_values)
 
+        # act
         mc_op.improve_policy(policy, action_values, returns)
 
+        # assert
         self.assertGreaterEqual(total_value(policy, action_values), total_value_before)
 
 
