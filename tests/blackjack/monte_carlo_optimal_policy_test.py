@@ -83,21 +83,20 @@ class ActionValues(unittest.TestCase):
 
 class ImprovePolicy(unittest.TestCase):
 
-    @unittest.skip('come back to this')
-    def test_improves_policy(self):
+    def test_does_not_lower_policy_value(self):
         policy = mc_op.MutableAgent()
         action_values = mc_op.ActionValues()
         returns = mc_op.Returns()
 
         state = bj.State(0, 0, False)
         policy.set_action(state, 0)
-        action_values.add(state, 0, 0.5)
+        action_values.set(state, 0, 0.5)
 
         total_value_before = total_value(policy, action_values)
 
         mc_op.improve_policy(policy, action_values, returns)
 
-        self.assertGreater(total_value(policy, action_values), total_value_before)
+        self.assertGreaterEqual(total_value(policy, action_values), total_value_before)
 
 
 def total_value(policy, action_values: mc_op.ActionValues):

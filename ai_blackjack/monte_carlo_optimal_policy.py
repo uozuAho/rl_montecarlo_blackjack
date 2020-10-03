@@ -72,26 +72,12 @@ class Returns:
 
 
 def find_optimal_policy():
-    gamma = 1.0
     policy = MutableAgent()
     action_values = ActionValues()
     returns = Returns()
 
     for _ in range(10):
-        state = bj.State(0, 0, False) # todo: random state
-        action = 0 # todo: random action
-        G_return = 0
-        # todo: generate episode with given starting state and action (exploring start)
-        episode = bj.Episode(list(generate_episode(state, action)))
-        for t in reversed(range(episode.length() - 1)):
-            state = episode.steps[t].state
-            action = episode.steps[t].action
-            G_return = gamma * G_return + episode.steps[t + 1].reward
-            if episode.first_visit(state, action) == t: # todo: is first visit for state and action
-                returns.add(state, action, G_return)
-                action_values.add(state, action, returns.average_for(state, action))
-                best_action = action_values.highest_value_action(state)
-                policy.set_action(state, best_action)
+        improve_policy(policy, action_values, returns)
 
     return policy, {bj.State(0, 0, False): 0.0}
 
@@ -106,7 +92,7 @@ def improve_policy(policy: MutableAgent, action_values: ActionValues, returns: R
         state = episode.steps[t].state
         action = episode.steps[t].action
         G_return = G_return + episode.steps[t + 1].reward
-        if episode.first_visit(state, action) == t: # todo: is first visit for state and action
+        if episode.first_visit(state, action) == t:
             returns.add(state, action, G_return)
             action_values.add(state, action, returns.average_for(state, action))
             best_action = action_values.highest_value_action(state)
