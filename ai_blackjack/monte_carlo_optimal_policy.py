@@ -15,16 +15,16 @@ def run_demo():
     visualise.print_policy(policy)
     visualise.print_values(values)
     visualise.plot_values(values,
-        f'State values for optimal agent, no usable ace',
+        f'State values for optimal policy, no usable ace',
         False
     )
     # plot_values(values,
-    #     f'State values for optimal agent, usable ace',
+    #     f'State values for optimal policy, usable ace',
     #     True
     # )
 
 
-class MutableAgent:
+class MutablePolicy:
     def __init__(self):
         self._actions: Dict[bj.State, int] = {}
 
@@ -41,7 +41,7 @@ class MutableAgent:
             yield state, action
 
 
-class ExploringStartAgent:
+class ExploringStartPolicy:
     def __init__(self, policy, first_action):
         self.policy = policy
         self.first_action = first_action
@@ -97,7 +97,7 @@ class Returns:
 
 
 def find_optimal_policy():
-    policy = MutableAgent()
+    policy = MutablePolicy()
     action_values = ActionValues()
     returns = Returns()
 
@@ -107,10 +107,10 @@ def find_optimal_policy():
     return policy, { state: action_values.value(state, action) for state, action in policy.all_actions() }
 
 
-def improve_policy(policy: MutableAgent, action_values: ActionValues, returns: Returns) -> None:
+def improve_policy(policy: MutablePolicy, action_values: ActionValues, returns: Returns) -> None:
     G_return = 0
     first_action = random.randint(0, 1)
-    exploring_policy = ExploringStartAgent(policy, first_action)
+    exploring_policy = ExploringStartPolicy(policy, first_action)
     # note: we get exploring starting states for free with the random episode generator
     episode = bj.Episode(list(bj.generate_random_episode(exploring_policy)))
     for t in reversed(range(episode.length() - 1)):

@@ -9,21 +9,21 @@ from ai_blackjack import visualise
 
 
 def run_demo():
-    policy = StayOn20Agent()
+    policy = StayOn20Policy()
     num_episodes = 50000
     values = estimate_V(policy, num_episodes)
     visualise.plot_values(values,
-        f'State values for stay on 20/21 agent, no usable ace, {num_episodes} episodes',
+        f'State values for stay on 20/21 policy, no usable ace, {num_episodes} episodes',
         False
     )
     visualise.plot_values(values,
-        f'State values for stay on 20/21 agent, usable ace, {num_episodes} episodes',
+        f'State values for stay on 20/21 policy, usable ace, {num_episodes} episodes',
         True
     )
     visualise.print_values(values)
 
 
-class StayOn20Agent:
+class StayOn20Policy:
     def action(self, obs):
         return 1 if obs[0] < 20 else 0
 

@@ -4,7 +4,7 @@ import ai_blackjack.blackjack.blackjack as bj
 import ai_blackjack.monte_carlo_evaluate_policy as mc1
 
 
-class AlwaysStayAgent:
+class AlwaysStayPolicy:
     def action(self, observation):
         return 0
 
@@ -12,7 +12,7 @@ class AlwaysStayAgent:
 class E2eTests(unittest.TestCase):
 
     def test_values_is_a_non_empty_dict_of_states(self):
-        values = mc1.estimate_V(AlwaysStayAgent(), 10)
+        values = mc1.estimate_V(AlwaysStayPolicy(), 10)
 
         self.assertIsInstance(values, dict)
         self.assertTrue(len(values) > 0)
@@ -24,7 +24,7 @@ class E2eTests(unittest.TestCase):
 class Generated_Episode_When_Player_Always_Stays(unittest.TestCase):
 
     def setUp(self):
-        self.episode = list(bj.generate_random_episode(AlwaysStayAgent()))
+        self.episode = list(bj.generate_random_episode(AlwaysStayPolicy()))
 
     def test_is_never_empty(self):
         self.assertTrue(len(self.episode) > 0)
