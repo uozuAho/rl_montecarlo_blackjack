@@ -18,10 +18,10 @@ def run_demo():
         f'State values for optimal policy, no usable ace',
         False
     )
-    # plot_values(values,
-    #     f'State values for optimal policy, usable ace',
-    #     True
-    # )
+    visualise.plot_values(values,
+        f'State values for optimal policy, usable ace',
+        True
+    )
 
 
 class MutablePolicy:
@@ -101,7 +101,9 @@ def find_optimal_policy():
     action_values = ActionValues()
     returns = Returns()
 
-    for _ in range(100):
+    # possible states: player sum: 4-21, dealer's card: 1-10, usable ace: True/False
+    #                = 17 * 10 * 2 = 340
+    for _ in range(10000):
         improve_policy(policy, action_values, returns)
 
     return policy, { state: action_values.value(state, action) for state, action in policy.all_actions() }
