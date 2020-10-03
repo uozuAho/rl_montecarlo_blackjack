@@ -32,7 +32,11 @@ def print_policy(policy):
             line = f"{p} "
             for d in range(1, 11):
                 state = bj.State(p, d, usable_ace)
-                action = policy.action(state)
+                action = 0
+                try:
+                    action = policy.action(state)
+                except KeyError:
+                    pass
                 action_str = "H" if action else "S"
                 line += action_str + " "
             s += line + "\n"

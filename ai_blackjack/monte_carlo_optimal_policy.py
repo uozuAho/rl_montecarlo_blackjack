@@ -39,16 +39,21 @@ class MutableAgent:
 
 class ActionValues:
     def __init__(self):
-        self._values: Dict[Tuple[bj.State, int], float] = {}
+        # { state: { action: value } }
+        self._values = {}
 
-    def add(self, state: bj.State, action: int, value: float):
-        self._values[(state, action)] = value
+    def set(self, state: bj.State, action: int, value: float):
+        if state not in self._values:
+            self._values[state] = { action: value }
+        else:
+            self._values[state][action] = value
 
     def value(self, state: bj.State, action: int):
-        return self._values[(state, action)]
+        return self._values[state][action]
 
     def highest_value_action(self, state: bj.State):
-        return 0
+        values = self._values[state]
+        return max(values.items(), key=lambda v: v[1])[0]
 
 
 class Returns:
