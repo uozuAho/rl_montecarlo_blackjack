@@ -26,8 +26,8 @@ consists of playing (or simulating) many games of blackjack. The reward for a
 win is +1, a draw is 0, a loss is -1. For each state that occurs in a game, the
 reward of that game is tallied against that state. This project only records the
 reward against the first occurrence of a state in each game. This is called
-'first visit' Monte Carlo. The estimated return for each state is the average
-of all rewards recorded against that state.
+'first visit' Monte Carlo. The estimated return for each state is the average of
+all rewards recorded against that state.
 
 The estimates for a policy of only staying (or sticking) on 20 or 21 is shown
 below.
@@ -39,18 +39,14 @@ below.
 
 # Blackjack policy optimisation using Monte Carlo with exploring starts
 
-This method consists of playing (or simulating) many games of blackjack. The
-reward for a win is +1, a draw is 0, a loss is -1. For each state that occurs in
-a game, the reward of that game is tallied against that state. This project only
-records the reward against the first occurrence of a state in each game. This is
-called 'first visit' Monte Carlo.
+As above, this method finds an optimal policy by playing many games.
 
 Before any games are played, a random policy is created. As more games are
 played, the policy is improved by, for each state, choosing the action that has
 the best average reward recorded against it. The first action of each game is
-chosen randomly, to ensure all possible game states are visited. This strategy is
-called 'exploring starts'. The starting game state is already uniformly random,
-which ensures all states will be encountered.
+chosen randomly, to ensure all possible game states are visited. This strategy
+is called 'exploring starts'. The starting game state is already uniformly
+random, which ensures all states will be encountered.
 
 The optimal policy found by this project is visualised below. This will vary
 each run, due to the random nature of MC, unless you want to run it to
