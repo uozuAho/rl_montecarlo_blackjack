@@ -1,5 +1,6 @@
 import unittest
 
+import ai_blackjack.blackjack.blackjack as bj
 import ai_blackjack.monte_carlo_evaluate_policy as mc1
 
 
@@ -16,26 +17,26 @@ class E2eTests(unittest.TestCase):
         self.assertIsInstance(values, dict)
         self.assertTrue(len(values) > 0)
         for k, _ in values.items():
-            self.assertIsInstance(k, mc1.State)
+            self.assertIsInstance(k, bj.State)
 
 
 # todo: how to run this case multiple times?
 class Generated_Episode_When_Player_Always_Stays(unittest.TestCase):
 
     def setUp(self):
-        self.episode = list(mc1.generate_episode(AlwaysStayAgent()))
+        self.episode = list(bj.generate_random_episode(AlwaysStayAgent()))
 
     def test_is_never_empty(self):
         self.assertTrue(len(self.episode) > 0)
 
     def test_contains_episode_steps(self):
         for step in self.episode:
-            self.assertIsInstance(step, mc1.EpisodeStep)
+            self.assertIsInstance(step, bj.EpisodeStep)
 
     def test_episode_step_types(self):  # boo to dynamic types!
         for step in self.episode:
             self.assertTrue(isinstance(step.reward, float) or step.reward is None)
-            self.assertIsInstance(step.state, mc1.State)
+            self.assertIsInstance(step.state, bj.State)
             self.assertTrue(isinstance(step.action, int) or step.action is None)
 
     def test_first_step_has_no_reward(self):

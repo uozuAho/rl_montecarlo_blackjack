@@ -1,5 +1,7 @@
 from typing import List, Tuple, Iterable, Dict
 
+import gym
+
 
 class State:
     """ The state of a blackjack game
@@ -59,3 +61,15 @@ class Episode:
 
     def length(self) -> int:
         return len(self.steps)
+
+
+def generate_random_episode(policy, env=None) -> Iterable[EpisodeStep]:
+    if not env: env = gym.make('Blackjack-v0')
+    obs = env.reset()
+    done = False
+    reward = None
+    while not done:
+        action = policy.action(obs)
+        yield EpisodeStep(reward, State.from_obs(obs), action)
+        obs, reward, done, _ = env.step(action)
+    yield EpisodeStep(reward, State.from_obs(obs), None)
