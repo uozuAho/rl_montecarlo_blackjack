@@ -104,7 +104,7 @@ def find_optimal_policy():
     for _ in range(100):
         improve_policy(policy, action_values, returns)
 
-    return policy, {bj.State(0, 0, False): 0.0}
+    return policy, { state: action_values.value(state, action) for state, action in policy.all_actions() }
 
 
 def improve_policy(policy: MutableAgent, action_values: ActionValues, returns: Returns) -> None:
