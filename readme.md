@@ -21,3 +21,4 @@ python demo.py
 # todo
 
 - mc policy optimiser
+- document what this is

@@ -22,3 +22,25 @@ class FindOptimalPolicy(unittest.TestCase):
         self.assertTrue(len(self.values) > 0)
         for k, _ in self.values.items():
             self.assertIsInstance(k, bj.State)
+
+
+class ImprovePolicy(unittest.TestCase):
+
+    def test_improves_policy(self):
+        policy = mc_op.MutableAgent()
+        action_values = mc_op.ActionValues()
+        returns = mc_op.Returns()
+
+        state = bj.State(0, 0, False)
+        policy.set_action(state, 0)
+        action_values.add(state, 0, 0.5)
+
+        total_value_before = total_value(policy, action_values)
+
+        mc_op.improve_policy(policy, action_values, returns)
+
+        self.assertGreater(total_value(policy, action_values), total_value_before)
+
+
+def total_value(policy, action_values: mc_op.ActionValues):
+    return sum((action_values.value(s, a) for s, a in policy.all_actions()))
