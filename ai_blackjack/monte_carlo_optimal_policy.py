@@ -23,14 +23,18 @@ def run_demo():
 
 
 class MutableAgent:
+    def __init__(self):
+        self._actions: Dict[bj.State, int] = {}
+
     def action(self, state):
-        return 0
+        return self._actions[state]
 
     def set_action(self, state, action):
-        pass
+        self._actions[state] = action
 
     def all_actions(self) -> Iterable[Tuple[bj.State, int]]:
-        yield (bj.State(0, 0, False), 0)
+        for state, action in self._actions.items():
+            yield state, action
 
 
 class ActionValues:
