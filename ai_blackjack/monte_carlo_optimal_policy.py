@@ -108,7 +108,7 @@ def find_optimal_policy():
 
 
 def improve_policy(policy: MutablePolicy, action_values: ActionValues, returns: Returns) -> None:
-    G_return = 0
+    reward_sum = 0
     first_action = random.randint(0, 1)
     exploring_policy = ExploringStartPolicy(policy, first_action)
     # note: we get exploring starting states for free with the random episode generator
@@ -116,9 +116,9 @@ def improve_policy(policy: MutablePolicy, action_values: ActionValues, returns: 
     for t in reversed(range(episode.length() - 1)):
         state = episode.steps[t].state
         action = episode.steps[t].action
-        G_return = G_return + episode.steps[t + 1].reward
+        reward_sum += episode.steps[t + 1].reward
         if episode.first_visit(state, action) == t:
-            returns.add(state, action, G_return)
+            returns.add(state, action, reward_sum)
             action_values.set(state, action, returns.average_for(state, action))
             best_action = action_values.highest_value_action(state)
             policy.set_action(state, best_action)
