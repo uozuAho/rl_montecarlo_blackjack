@@ -62,6 +62,7 @@ class Episode:
     def length(self) -> int:
         return len(self.steps)
 
+
 static_env = gym.make('Blackjack-v0')
 
 def generate_random_episode(policy, env=None) -> Iterable[EpisodeStep]:

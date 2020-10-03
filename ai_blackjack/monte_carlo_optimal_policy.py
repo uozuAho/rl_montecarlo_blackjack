@@ -1,4 +1,5 @@
 from typing import Iterable, Dict, Tuple
+import random
 
 import gym
 import matplotlib.pyplot as plt
@@ -37,6 +38,27 @@ class MutableAgent:
 
     def all_actions(self) -> Iterable[Tuple[bj.State, int]]:
         for state, action in self._actions.items():
+            yield state, action
+
+
+class ExploringStartAgent:
+    def __init__(self, policy, first_action):
+        self.policy = policy
+        self.first_action = first_action
+        self.is_first_action = True
+
+    def action(self, state):
+        if self.is_first_action:
+            self.is_first_action = False
+            return self.first_action
+        else:
+            return self.policy.action(state)
+
+    def set_action(self, state, action):
+        return self.policy.set_action(state, action)
+
+    def all_actions(self) -> Iterable[Tuple[bj.State, int]]:
+        for state, action in self.policy.all_actions():
             yield state, action
 
 
@@ -79,7 +101,7 @@ def find_optimal_policy():
     action_values = ActionValues()
     returns = Returns()
 
-    for _ in range(10):
+    for _ in range(100):
         improve_policy(policy, action_values, returns)
 
     return policy, {bj.State(0, 0, False): 0.0}
@@ -87,8 +109,10 @@ def find_optimal_policy():
 
 def improve_policy(policy: MutableAgent, action_values: ActionValues, returns: Returns) -> None:
     G_return = 0
-    # note: we get exploring starts for free with the random episode generator
-    episode = bj.Episode(list(bj.generate_random_episode(policy)))
+    first_action = random.randint(0, 1)
+    exploring_policy = ExploringStartAgent(policy, first_action)
+    # note: we get exploring starting states for free with the random episode generator
+    episode = bj.Episode(list(bj.generate_random_episode(exploring_policy)))
     for t in reversed(range(episode.length() - 1)):
         state = episode.steps[t].state
         action = episode.steps[t].action

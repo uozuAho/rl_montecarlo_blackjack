@@ -83,6 +83,7 @@ class ActionValues(unittest.TestCase):
 
 class ImprovePolicy(unittest.TestCase):
 
+    @unittest.skip('delete this? does not work since it doesnt control the initial state')
     def test_does_not_lower_policy_value(self):
         policy = mc_op.MutableAgent()
         action_values = mc_op.ActionValues()
